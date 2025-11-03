@@ -1,0 +1,27 @@
+又遇上问题了。。。
+但是不怕，好多问题都遇上过好多问题都解决了。
+之前是为了实现高通量的理论计算，略过了好多东西的学习。
+一开始先学CP2K，以此来实现各种类型的分子动力学计算和DFT计算，但发现不方便用于热导率的计算，转而去学LAMMPS。
+一开始学ASE，本希望用它来建模，后来发现在建模方面可能mbuild比较好用，转而去学mosdef这一系列的工具，但是力场参数缺失是个问题。
+当时学mosdef真的是废了老鼻子劲儿了，跟开发者在github上来来回回的讨论，终于能够生成一个能跑LAMMPS计算的data文件。
+一开始学AiiDA，后来在服务器级的windows上安装wsl过程极不友好，自己的PC有没有足够的空间来支持后面的使用，便作罢了。
+一开始不想学*****py，想死磕mosdef，但最后还是学了并用上了，用的还挺好，当然还会遇上一些未知领域的bug，还得一点一点的克服。
+一开始不想学的moltemplate，packmol也在短短几天内学会了。
+一开始觉得不好用的，不能和gmso对接起来的ligpargen也发现还有些用处，只是还得探索怎么把pdb，ligpargen生成的各种data文件以及gmso所使用的xml文件结合起来，以便用gmso来施加力场。
+可能还有四个选择吧，第一就是上面提到的编制客制化的gmso的xml文件。
+                  第二就是直接用LAMMPS脚本来定义力场参数，好像可以吧。。。
+                  第三就是还是得学moltemplate提到的怎么用ambertool来施加GAFF力场。
+                  第四就是客制化moltemplate力场，用这个把力场参数施加到结构上。
+# Recommended method:
+#
+# Use AmberTools to create a MOL2 file containing one of the molecules
+# you want to simulate.  Suppose you use AmberTools to prepare a MOL2 file
+# containing a single benzene molecule (named "benzene.mol2")
+# and a corresponding FRCMOD file (named "benzene.frcmod").  Use:
+#
+# mol22lt.py --in benzene.mol2 --out benzene.lt --name Benzene \
+#            --ff MyForceField --ff-file my_force_field.lt
+# amber2lt.py --in benzene.frcmod --name MyForceField >> my_force_field.lt
+所以生成LAMMPS的data文件是运行LAMMPS最难的问题。LAMMPS脚本有文献，有示例，有github（主要还是生成各类后处理文件，这个也挺难的），有官方报错的建议来帮助。但data文件的生成必须得懂
+力场文件的含义，原子类型的定义，不同相互作用各种形式的公式，参数的含义，什么样的电荷是合理的等。而且生成方式五花八门，不同工具之间的转换也是个问题。
+另外，最近发现avogadro真好用！

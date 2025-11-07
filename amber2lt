@@ -1,0 +1,83 @@
+运行这行代码
+amber2lt.py --in PMMA3_gaff2.frcmod --name gaff24PMMA3 >>gaff24PMMA3.lt
+出现这个报错
+amber2lt.py v0.2.1 2022-9-09
+WARNING: THIS IS EXPERIMENTAL SOFTWARE (2022-8-24)
+Format Error: Expected ('MASS', 'MASSES'). Found 'BOND'. (Split file and use --bond, --angle, --dihedral, --improper arguments instead.)
+之后确定，需要将--mass mass.txt --bond bond.txt --angle angle.txt --dihedral dihedral.txt --improper improper.txt --pair pair.txt这四个文件都建立起来，即使内容是空的，而且
+内部也不需要标题和表头，后面会把frcmod文件和txt文件贴出来。
+然后运行
+amber2lt.py --mass mass.txt --bond bond.txt --angle angle.txt --dihedral dihedral.txt --improper improper.txt --pair pair.txt --name gaff24PMMA3 --out gaff24PMMA3.lt
+出现报错
+amber2lt.py v0.2.1 2022-9-09
+WARNING: THIS IS EXPERIMENTAL SOFTWARE (2022-8-24)
+Traceback (most recent call last):
+File "/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py", line 985, in <module>
+main()
+~~~~^^
+File "/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py", line 862, in main
+with open(finename_mass, 'r') as f:
+^^^^^^^^^^^^^
+NameError: name 'finename_mass' is not defined
+copilot给出的建议为 使用 sed 在原地替换，先备份原文件
+cp ~/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py \
+   ~/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py.bak
+sed -i 's/finename_mass/filename_mass/g' \
+  ~/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py
+再运行amber2lt.py --mass mass.txt --bond bond.txt --angle angle.txt --dihedral dihedral.txt --improper improper.txt --pair pair.txt --name gaff24PMMA3 --out gaff24PMMA3.lt
+继续报错
+Traceback (most recent call last):
+File "/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py", line 985, in <module>
+main()
+~~~~^^
+File "/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py", line 862, in main
+with open(finename_mass, 'r') as f:
+^^^^^^^^^^^^^
+NameError: name 'finename_mass' is not defined
+发现源码中
+if ((args.filename_mass and args.filename_mass != '') and
+   (args.filename_bond and args.filename_bond != '') and
+   (args.filename_angle and args.filename_angle != '') and
+  ...
+   with open(finename_mass, 'r') as f:
+   lines_mass = f.readlines()
+...
+前后变量名不一致
+copilot继续支招
+orig=/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py
+cp "$orig" "${orig}.bak"
+sed -i 's/finename_mass/filename_mass/g; s/finename_bond/filename_bond/g; s/finename_angle/filename_angle/g; s/finename_dihedral/filename_dihedral/g; s/finename_improper/filename_improper/g; s/finename_pair/filename_pair/g' "$orig"
+没奏效
+又改
+orig=/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py
+cp "$orig" "${orig}.bak"
+python - <<'PY'
+from pathlib import Path
+p=Path("$orig")
+s=p.read_text()
+s=s.replace("with open(filename_mass, 'r') as f:\n    lines_mass = f.readlines()\nwith open(filename_bond, 'r') as f:\n    lines_bond = f.readlines()\nwith open(filename_angle, 'r') as f:\n    lines_angle = f.readlines()\nwith open(filename_dihedral, 'r') as f:\n    lines_dihedral = f.readlines()\nwith open(filename_improper, 'r') as f:\n    lines_improper = f.readlines()\nwith open(filename_pair, 'r') as f:\n    lines_pair = f.readlines()\n",
+"with open(args.filename_mass, 'r') as f:\\n    lines_mass = f.readlines()\\nwith open(args.filename_bond, 'r') as f:\\n    lines_bond = f.readlines()\\nwith open(args.filename_angle, 'r') as f:\\n    lines_angle = f.readlines()\\nwith open(args.filename_dihedral, 'r') as f:\\n    lines_dihedral = f.readlines()\\nwith open(args.filename_improper, 'r') as f:\\n    lines_improper = f.readlines()\\nwith open(args.filename_pair, 'r') as f:\\n    lines_pair = f.readlines()\\n")
+p.write_text(s)
+print("patched", p)
+PY
+依然不奏效，查看了一下amber2lt.py内容还是filename，而非args.filename
+而后
+orig=/work/mse-wangad/.conda/envs/moltemplate/lib/python3.13/site-packages/moltemplate/amber2lt.py
+cp "$orig" "${orig}.bak"
+sed -i "s/with open(filename_mass/with open(args.filename_mass/g" "$orig"
+sed -i "s/with open(filename_bond/with open(args.filename_bond/g" "$orig"
+sed -i "s/with open(filename_angle/with open(args.filename_angle/g" "$orig"
+sed -i "s/with open(filename_dihedral/with open(args.filename_dihedral/g" "$orig"
+sed -i "s/with open(filename_improper/with open(args.filename_improper/g" "$orig"
+sed -i "s/with open(filename_pair/with open(args.filename_pair/g" "$orig"
+就成功运行了
+amber2lt.py --mass mass.txt --bond bond.txt --angle angle.txt --dihedral dihedral.txt --improper improper.txt --pair pair.txt --name gaff24PMMA3 --out gaff24PMMA3.lt
+
+
+
+
+
+
+
+
+

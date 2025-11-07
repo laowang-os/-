@@ -1,0 +1,113 @@
+####################################################################
+# To use this, LAMMPS must be compiled with the EXTRA-MOLECULE package
+# (See here for details: https://docs.lammps.org/Build_package.html)
+#######################################################################
+#    This moltemplate (LT) file was generated automatically using
+#      amber2lt.py --mass mass.txt --bond bond.txt --angle angle.txt --dihedral dihedral.txt --improper improper.txt --pair pair.txt --name gaff24PMMA3 --out gaff24PMMA3.lt
+#######################################################################
+#      USAGE SUGGESTIONS:
+# Suppose you named your force field "GAFF"  (using amber2lt.py's "--name"
+# argument) and saved it in a file named "gaff.lt".  Then, in order to create
+# molecules that use this force field, create a file for each type of molecule
+# (eg "benzene.lt") and use this format:
+# #---- "benzene.lt" file -----
+# import "gaff.lt"
+# Benzene inherits GAFF {
+#   write('Data Atoms') {
+#     $atom:c1  $mol  @atom:ca  -0.115   -0.739   1.189  -0.00733
+#     $atom:c2  $mol  @atom:ca  -0.115    0.614   1.208   0.35167
+#        :        :        :
+#   }
+#   write("Data Bond List") {
+#     $bond:b1 $atom:C1 $atom:C2
+#        :
+#   }
+# }
+#
+# ------- How to generate molecule files (such as "benzene.lt") -------
+#
+# You can try to generate these files manually, but you must be careful
+# to choose the correct @atom types for each atom (eg "@atom:ca"),
+# and you must obtain the atomic charge (column 4) by other means. (See below.)
+#
+# Recommended method:
+#
+# Use AmberTools to create a MOL2 file containing one of the molecules
+# you want to simulate.  Suppose you use AmberTools to prepare a MOL2 file
+# containing a single benzene molecule (named "benzene.mol2")
+# and a corresponding FRCMOD file (named "benzene.frcmod").  Use:
+#
+# mol22lt.py --in benzene.mol2 --out benzene.lt --name Benzene \
+#            --ff MyForceField --ff-file my_force_field.lt
+# amber2lt.py --in benzene.frcmod --name MyForceField >> my_force_field.lt
+#
+# ...The resulting "benzene.lt" file will have this format:
+# #---- "benzene.lt" file -----
+# import "my_force_field.lt"
+# Benzene inherits MyForceField {
+#   :
+# }
+# Repeat this for each different type of molecule you want in your simulation.
+# (If it is a molecule with multiple chains, do this for every chain.)
+# (If you want to start over, delete the "my_force_field.lt" file.)
+#######################################################################
+
+
+gaff24PMMA3 {
+
+
+  write_once("Data Masses") {
+  } # (end of masses)
+
+  write_once("In Settings") {
+  } # (end of pair_coeffs)
+
+  write_once("In Settings") {
+  } # (end of bond_coeffs)
+
+  write_once("Data Bonds By Type") {
+  } # (end of Bonds By Type)
+
+  write_once("In Settings") {
+  } # (end of angle_coeffs)
+
+  write_once("Data Angles By Type") {
+  } # (end of Angles By Type)
+
+  write_once("In Settings") {
+    
+  } # (end of dihedral_coeffs)
+
+  write_once("Data Dihedrals By Type") {
+  } # (end of Dihedrals By Type)
+
+  write_once("In Settings") {
+    improper_coeff @improper:c3-o-c-os cvff 10.5 -1 2
+  } # (end of improper_coeffs)
+
+  write_once("Data Impropers By Type (gaff_imp.py)") {
+    @improper:c3-o-c-os @atom:c3 @atom:o @atom:c @atom:os
+  } # (end of Impropers By Type)
+
+
+  write_once("In Init") {
+    # Default styles and settings for AMBER based force-fields:
+    units           real
+    atom_style      full
+    bond_style      hybrid harmonic
+    angle_style     hybrid harmonic
+    dihedral_style  hybrid fourier
+    improper_style  hybrid cvff
+    pair_style      hybrid lj/charmm/coul/long 9.0 10.0 10.0
+    kspace_style    pppm 0.0001
+
+    # NOTE: If you do not want to use long-range coulombic forces,
+    #       comment out the two lines above and uncomment this line:
+    # pair_style      hybrid lj/charmm/coul/charmm 9.0 10.0
+
+    pair_modify     mix arithmetic
+    special_bonds   amber
+  }
+
+} # gaff24PMMA3
+
